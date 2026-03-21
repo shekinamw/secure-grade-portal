@@ -1,1 +1,2 @@
 # secure-grade-portal
+A Flask web application demonstrating SQL injection, XSS, and broken authentication vulnerabilities alongside their mitigations. Built as part of a university computer security course.
