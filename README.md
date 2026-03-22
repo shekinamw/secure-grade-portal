@@ -30,9 +30,7 @@ python app.py          # runs on http://localhost:5001
 
 | Username | Password   | Role    |
 |----------|------------|---------|
-| admin    | admin123   | admin   |
-| student1 | password1  | student |
-| student2 | qwerty     | student |
+ |
 
 ---
 
