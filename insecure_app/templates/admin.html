@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Portal — Admin</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#002B5C;--blue:#0057A8;--orange:#E8650A;
+      --light:#EEF3F9;--border:#C8D6E5;--muted:#5A6A7A;--text:#1A1A2E;--white:#fff;
+      --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    }
+    body{font-family:var(--sans);background:var(--light);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+    .topbar{background:var(--navy);height:56px;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+    .topbar-left{display:flex;align-items:center;gap:12px;}
+    .logo-ph{width:34px;height:34px;background:var(--orange);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+    .topbar-name{font-size:15px;font-weight:600;color:#fff;}
+    .topbar-name span{color:var(--orange);}
+    .topbar-right{display:flex;align-items:center;gap:1.5rem;font-size:13px;}
+    .topbar-right .chip{color:#9BB5D0;}
+    .topbar-right a{color:#9BB5D0;text-decoration:none;}
+    .topbar-right a:hover{color:#fff;}
+    .accent{height:4px;background:var(--orange);flex-shrink:0;}
+    .subnav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:40px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-shrink:0;}
+    .subnav a{color:var(--blue);text-decoration:none;}
+    .subnav-sep{color:#C0CDD8;}
+    .page{flex:1;max-width:1040px;width:100%;margin:0 auto;padding:2rem;}
+    .page-head{margin-bottom:1.5rem;}
+    .page-head h1{font-size:1.25rem;font-weight:600;color:var(--navy);margin-bottom:.15rem;}
+    .page-head p{font-size:13px;color:var(--muted);}
+    .section{margin-bottom:2rem;}
+    .section-title{font-size:12px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 1px 5px rgba(0,43,92,.06);}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;}
+    th{padding:.65rem 1.1rem;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);background:#F4F8FC;white-space:nowrap;}
+    td{padding:.75rem 1.1rem;border-bottom:1px solid #EEF3F9;vertical-align:top;}
+    tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#F8FBFF;}
+    .mono{font-family:'Courier New',monospace;font-size:12px;}
+    .pw{color:#c0392b;font-family:'Courier New',monospace;font-size:12px;font-weight:700;}
+    .grade-badge{display:inline-block;font-size:12px;font-weight:700;padding:.2rem .55rem;border-radius:4px;}
+    .g-a{background:#E6F5EE;color:#1A6B3C;}
+    .g-b{background:#E6F0FB;color:#0057A8;}
+    .g-c{background:#FFF4E6;color:#8A4800;}
+    .notes-cell{font-size:12.5px;color:var(--muted);max-width:220px;}
+    footer{background:var(--navy);color:#7A9AC0;text-align:center;font-size:11px;padding:.85rem;flex-shrink:0;margin-top:auto;}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <!-- LOGO PLACEHOLDER: replace with <img src="stu-logo.png" height="34"> -->
+      <div class="logo-ph">STU</div>
+      <span class="topbar-name">Smart Tech <span>University</span></span>
+    </div>
+    <div class="topbar-right">
+      <span class="chip">{{ username if username else "Not logged in" }}</span>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Sign Out</a>
+    </div>
+  </header>
+  <div class="accent"></div>
+
+  <nav class="subnav">
+    <a href="/dashboard">Grade Portal</a>
+    <span class="subnav-sep">›</span>
+    <span>Admin Panel</span>
+  </nav>
+
+  {# VULNERABILITY: this entire page is accessible to anyone — no login required.
+     Navigate directly to /admin without a session. #}
+
+  <div class="page">
+    <div class="page-head">
+      <h1>Admin Panel</h1>
+      <p>All users and grade records</p>
+    </div>
+
+    <!-- Users table — exposes plaintext passwords -->
+    <div class="section">
+      <div class="section-title">Users ({{ users|length }})</div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Username</th><th>Password</th><th>Role</th></tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td class="mono">{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td class="pw">{{ u.password }}</td>
+              <td><span class="mono">{{ u.role }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All grades -->
+    <div class="section">
+      <div class="section-title">All Grade Records ({{ grades|length }})</div>
+      <div class="card">
+        <table>
+          <thead>
+            <tr><th>Student ID</th><th>Course</th><th>Grade</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            {% for g in grades %}
+            <tr>
+              <td class="mono">{{ g.student_id }}</td>
+              <td style="font-size:13px;">{{ g.course }}</td>
+              <td>
+                <span class="grade-badge
+                  {% if g.grade.startswith('A') %}g-a
+                  {% elif g.grade.startswith('B') %}g-b
+                  {% else %}g-c{% endif %}">{{ g.grade }}</span>
+              </td>
+              {# VULNERABILITY (Stored XSS): notes unescaped #}
+              <td class="notes-cell">{{ g.notes | safe }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 Smart Tech University &nbsp;·&nbsp; Grade Portal &nbsp;·&nbsp; <strong style="color:var(--orange)">INSECURE VERSION</strong></footer>
+</body>
+</html>

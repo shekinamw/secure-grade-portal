@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Portal — Sign In</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#002B5C;--blue:#0057A8;--orange:#E8650A;--orh:#c9560a;
+      --light:#EEF3F9;--border:#C8D6E5;--muted:#5A6A7A;--text:#1A1A2E;--white:#fff;
+      --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    }
+    body{font-family:var(--sans);background:var(--light);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+    /* topbar */
+    .topbar{background:var(--navy);height:56px;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+    .topbar-left{display:flex;align-items:center;gap:12px;}
+    .logo-ph{width:34px;height:34px;background:var(--orange);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+    .topbar-name{font-size:15px;font-weight:600;color:#fff;}
+    .topbar-name span{color:var(--orange);}
+    .topbar-right{font-size:12px;color:#9BB5D0;}
+    .accent{height:4px;background:var(--orange);flex-shrink:0;}
+    /* main */
+    .page{flex:1;display:flex;align-items:center;justify-content:center;padding:3rem 1.5rem;}
+    .box{width:100%;max-width:420px;}
+    .box-head{text-align:center;margin-bottom:1.75rem;}
+    .box-head h1{font-size:1.5rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;}
+    .box-head p{font-size:13px;color:var(--muted);}
+    .card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:2rem;box-shadow:0 2px 12px rgba(0,43,92,.08);}
+    .card-label{font-size:13px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;padding-bottom:.75rem;border-bottom:2px solid var(--orange);display:inline-block;margin-bottom:1.5rem;}
+    label{display:block;font-size:13px;font-weight:500;color:var(--navy);margin-bottom:.4rem;}
+    input[type=text],input[type=password]{width:100%;border:1px solid var(--border);border-radius:5px;background:#FAFBFC;color:var(--text);font-family:var(--sans);font-size:14px;padding:.65rem .85rem;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:1.1rem;}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,87,168,.12);background:#fff;}
+    .btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:5px;font-family:var(--sans);font-size:14px;font-weight:600;padding:.75rem;cursor:pointer;transition:background .15s;margin-top:.25rem;}
+    .btn:hover{background:var(--orh);}
+    .err{font-size:13px;color:#c0392b;margin-bottom:1rem;padding:.65rem .85rem;border:1px solid #f5c6c2;border-radius:5px;background:#fef0ef;}
+    .demo-creds{margin-top:1.25rem;padding:.9rem 1rem;background:#F0F5FF;border:1px solid #C8D6E5;border-radius:6px;font-size:12px;color:var(--muted);line-height:1.9;}
+    .demo-creds strong{color:var(--navy);}
+    /* footer */
+    footer{background:var(--navy);color:#7A9AC0;text-align:center;font-size:11px;padding:.85rem;flex-shrink:0;}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <!-- LOGO PLACEHOLDER: replace div below with <img src="ot-logo.png" height="34"> -->
+      <div class="logo-ph">STU</div>
+      <span class="topbar-name">Smart Tech <span>University</span></span>
+    </div>
+    <span class="topbar-right">SOFE4840U — Software &amp; Computer Security</span>
+  </header>
+  <div class="accent"></div>
+
+  <main class="page">
+    <div class="box">
+      <div class="box-head">
+        <h1>Student Grade Portal</h1>
+        <p>Sign in with your university credentials</p>
+      </div>
+      <div class="card">
+        <span class="card-label">Sign In</span>
+        {% if error %}<div class="err">⚠ {{ error }}</div>{% endif %}
+        <form method="POST" action="/">
+          <label for="u">Username</label>
+          <input type="text" id="u" name="username" placeholder="Enter your username" autocomplete="off" required>
+          <label for="p">Password</label>
+          <input type="password" id="p" name="password" placeholder="Enter your password" required>
+          <button class="btn" type="submit">Sign In</button>
+        </form>
+        <div class="demo-creds">
+          <strong>Demo accounts:</strong><br>
+          alice / password1 &nbsp;·&nbsp; bob / qwerty &nbsp;·&nbsp; carol / letmein<br>
+          admin / admin123
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>&copy; 2026 Smart Tech University &nbsp;·&nbsp; Grade Portal &nbsp;·&nbsp; <strong style="color:var(--orange)">INSECURE VERSION</strong></footer>
+</body>
+</html>
