@@ -32,7 +32,7 @@ def init_db():
         )
     """)
 
-    # student_id is now stored directly on the user row
+    # Set up users info
     users = [
         ("admin",  "admin123",  "0000", "admin"),
         ("alice",  "password1", "1001", "student"),
