@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grade Portal — Admin</title>
+  <title>Grade Portal — Admin (Secure)</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --navy:#002B5C;--blue:#0057A8;--red:#c0392b;
-      --light:#EEF3F9;--border:#C8D6E5;--muted:#5A6A7A;--text:#1A1A2E;--white:#fff;
+      --green:#1A6B3C;--lgreen:#E6F5EE;--bgreen:#2E7D52;
+      --light:#EEF3F9;--border:#C8D6E5;--muted:#5A6A7A;--text:#1A1A2E;
       --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     }
     body{font-family:var(--sans);background:var(--light);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
@@ -21,12 +22,12 @@
     .topbar-right .chip{color:#9BB5D0;}
     .topbar-right a{color:#9BB5D0;text-decoration:none;}
     .topbar-right a:hover{color:#fff;}
-    .accent{height:4px;background:var(--red);flex-shrink:0;}
+    .accent{height:4px;background:var(--green);flex-shrink:0;}
     .subnav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;height:40px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-shrink:0;}
     .subnav a{color:var(--blue);text-decoration:none;}
     .subnav-sep{color:#C0CDD8;}
     .page{flex:1;max-width:1040px;width:100%;margin:0 auto;padding:2rem;}
-    .page-head{margin-bottom:1.5rem;}
+    .page-head{margin-bottom:1.25rem;}
     .page-head h1{font-size:1.25rem;font-weight:600;color:var(--navy);margin-bottom:.15rem;}
     .page-head p{font-size:13px;color:var(--muted);}
     .section{margin-bottom:2rem;}
@@ -38,12 +39,18 @@
     tr:last-child td{border-bottom:none;}
     tbody tr:hover{background:#F8FBFF;}
     .mono{font-family:'Courier New',monospace;font-size:12px;}
-    .pw{color:#c0392b;font-family:'Courier New',monospace;font-size:12px;font-weight:700;}
+    /* bcrypt hash display */
+    .hash{font-family:'Courier New',monospace;font-size:11px;color:var(--green);word-break:break-all;max-width:320px;}
     .grade-badge{display:inline-block;font-size:12px;font-weight:700;padding:.2rem .55rem;border-radius:4px;}
     .g-a{background:#E6F5EE;color:#1A6B3C;}
     .g-b{background:#E6F0FB;color:#0057A8;}
     .g-c{background:#FFF4E6;color:#8A4800;}
     .notes-cell{font-size:12.5px;color:var(--muted);max-width:220px;}
+    /* security banner */
+    .sec-banner{background:var(--lgreen);border:1px solid #A8D5BC;border-radius:8px;padding:.85rem 1.1rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:1.25rem;}
+    .sec-item{display:flex;align-items:flex-start;gap:.45rem;font-size:12px;color:#1A4A2A;line-height:1.5;}
+    .sec-item strong{font-weight:600;}
+    .sec-icon{color:var(--green);flex-shrink:0;font-size:13px;}
     footer{background:var(--navy);color:#7A9AC0;text-align:center;font-size:11px;padding:.85rem;flex-shrink:0;margin-top:auto;}
   </style>
 </head>
@@ -54,7 +61,7 @@
       <span class="topbar-name">University Registration <span>Website</span></span>
     </div>
     <div class="topbar-right">
-      <span class="chip">{{ username if username else "Not logged in" }}</span>
+      <span class="chip">{{ username }}</span>
       <a href="/dashboard">Dashboard</a>
       <a href="/logout">Sign Out</a>
     </div>
@@ -67,30 +74,49 @@
     <span>Admin Panel</span>
   </nav>
 
-  {# VULNERABILITY: this entire page is accessible to anyone — no login required.
-     Navigate directly to /admin without a session. #}
+  {# SECURITY MEASURE: this page is only reachable if session role == "admin".
+     In app.py: if session.get("role") != "admin": abort(403)
+     Navigating to /admin without login redirects to the login page.
+     Navigating here as a student returns 403 Forbidden. #}
 
   <div class="page">
     <div class="page-head">
       <h1>Admin Panel</h1>
-      <p>All users and grade records</p>
+      <p>All users and grade records — accessible to admin role only</p>
     </div>
 
-    <!-- Users table — exposes plaintext passwords -->
+    <div class="sec-banner">
+      <div class="sec-item">
+        <span class="sec-icon">✓</span>
+        <span><strong>Access control enforced</strong> — this route checks session role before rendering; non-admins receive 403</span>
+      </div>
+      <div class="sec-item">
+        <span class="sec-icon">✓</span>
+        <span><strong>Passwords are bcrypt hashes</strong> — the password column shows $2b$12$... strings; the original password cannot be recovered</span>
+      </div>
+      <div class="sec-item">
+        <span class="sec-icon">✓</span>
+        <span><strong>XSS neutralized</strong> — notes escaped by default; the script tag in bob's record is displayed as text</span>
+      </div>
+    </div>
+
+    <!-- Users table — passwords are hashes, not plaintext -->
     <div class="section">
       <div class="section-title">Users ({{ users|length }})</div>
       <div class="card">
         <table>
           <thead>
-            <tr><th>ID</th><th>Username</th><th>Password</th><th>Role</th></tr>
+            <tr><th>ID</th><th>Username</th><th>Password (bcrypt hash)</th><th>Role</th></tr>
           </thead>
           <tbody>
             {% for u in users %}
             <tr>
               <td class="mono">{{ u.id }}</td>
               <td>{{ u.username }}</td>
-              <td class="pw">{{ u.password }}</td>
-              <td><span class="mono">{{ u.role }}</span></td>
+              {# SECURITY: password column shows the bcrypt hash, not the real password.
+                 Compare with the insecure admin panel which shows plaintext. #}
+              <td class="hash">{{ u.password }}</td>
+              <td class="mono">{{ u.role }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -117,8 +143,10 @@
                   {% elif g.grade.startswith('B') %}g-b
                   {% else %}g-c{% endif %}">{{ g.grade }}</span>
               </td>
-              {# VULNERABILITY (Stored XSS): notes unescaped #}
-              <td class="notes-cell">{{ g.notes | safe }}</td>
+              {# SECURITY MEASURE (fix #3 — XSS): no | safe here.
+                 Bob's <script> tag renders as escaped text: &lt;script&gt;...
+                 In the insecure version | safe caused it to execute. #}
+              <td class="notes-cell">{{ g.notes }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -127,7 +155,6 @@
     </div>
   </div>
 
-  <footer><strong style="color:var(--red)">INSECURE VERSION</strong></footer>
+  <footer><strong style="color:#2E7D52;">SECURE VERSION</strong></footer>
 </body>
-</html></body>
 </html>
